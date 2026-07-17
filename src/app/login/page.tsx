@@ -5,6 +5,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
+function traduzirErroLogin(mensagem: string) {
+  if (mensagem.includes("Email not confirmed")) {
+    return "Este e-mail ainda não foi confirmado. Peça para o administrador confirmar o usuário no painel do Supabase (Authentication > Users).";
+  }
+  if (mensagem.includes("Invalid login credentials")) {
+    return "E-mail ou senha incorretos. Confira com um dos sócios.";
+  }
+  return `Não foi possível entrar (${mensagem}). Confira com um dos sócios.`;
+}
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -33,7 +43,7 @@ function LoginForm() {
     });
     setCarregando(false);
     if (error) {
-      setErro("E-mail ou senha inválidos. Confira com um dos sócios.");
+      setErro(traduzirErroLogin(error.message));
       return;
     }
     router.push(searchParams.get("redirect") || "/");
